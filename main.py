@@ -10,6 +10,7 @@ def main() -> None:
     root = tk.Tk()
     root.title("Kalkulator")
     root.geometry("400x420")
+    root.minsize(320, 420)
 
     output_value = tk.StringVar(value="")
     history_store = HistoryStore()

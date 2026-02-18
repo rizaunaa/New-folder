@@ -4,7 +4,7 @@ from typing import Callable
 
 def create_keypad(parent: tk.Widget, on_press: Callable[[str], None]) -> tk.Frame:
     frame = tk.Frame(parent)
-    frame.pack(fill="x", padx=20, pady=(0, 20))
+    frame.pack(fill="both", expand=True, padx=20, pady=(0, 20))
 
     layout = [
         (0, 0, "1", "1", 1),
@@ -28,7 +28,6 @@ def create_keypad(parent: tk.Widget, on_press: Callable[[str], None]) -> tk.Fram
         button = tk.Button(
             frame,
             text=label,
-            width=8,
             height=2,
             command=lambda key_value=value: on_press(key_value),
         )
@@ -43,5 +42,7 @@ def create_keypad(parent: tk.Widget, on_press: Callable[[str], None]) -> tk.Fram
 
     for column in range(4):
         frame.grid_columnconfigure(column, weight=1)
+    for row in range(5):
+        frame.grid_rowconfigure(row, weight=1)
 
     return frame
