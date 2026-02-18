@@ -11,7 +11,26 @@ def main() -> None:
     root.geometry("400x420")
 
     output_value = tk.StringVar(value="")
-    output_label = create_output_display(root, output_value.get())
+
+    def on_history_click() -> None:
+        print("Tombol histori diklik")
+
+    top_row = tk.Frame(root)
+    top_row.pack(fill="x", padx=20, pady=(16, 0))
+
+    display_host = tk.Frame(top_row)
+    display_host.pack(side="left", fill="x", expand=True)
+
+    history_button = tk.Button(
+        top_row,
+        text="Histori",
+        command=on_history_click,
+        padx=10,
+        pady=2,
+    )
+    history_button.pack(side="right", padx=(10, 0), pady=20)
+
+    output_label = create_output_display(display_host, output_value.get())
     last_was_equal = False
 
     def on_key_press(key: str) -> None:
