@@ -6,37 +6,42 @@ def create_keypad(parent: tk.Widget, on_press: Callable[[str], None]) -> tk.Fram
     frame = tk.Frame(parent)
     frame.pack(fill="x", padx=20, pady=(0, 20))
 
-    keys = [
-        "1",
-        "2",
-        "3",
-        "4",
-        "5",
-        "6",
-        "7",
-        "8",
-        "9",
-        "0",
-        "+",
-        "-",
-        "*",
-        "/",
-        "=",
+    layout = [
+        (0, 0, "1", "1", 1),
+        (0, 1, "2", "2", 1),
+        (0, 2, "3", "3", 1),
+        (0, 3, "+", "+", 1),
+        (1, 0, "4", "4", 1),
+        (1, 1, "5", "5", 1),
+        (1, 2, "6", "6", 1),
+        (1, 3, "-", "-", 1),
+        (2, 0, "7", "7", 1),
+        (2, 1, "8", "8", 1),
+        (2, 2, "9", "9", 1),
+        (2, 3, "x", "*", 1),
+        (3, 1, "0", "0", 1),
+        (3, 3, "/", "/", 1),
+        (4, 0, "=", "=", 4),
     ]
 
-    for index, key in enumerate(keys):
-        row = index // 3
-        column = index % 3
+    for row, column, label, value, span in layout:
         button = tk.Button(
             frame,
-            text=key,
+            text=label,
             width=8,
             height=2,
-            command=lambda value=key: on_press(value),
+            command=lambda key_value=value: on_press(key_value),
         )
-        button.grid(row=row, column=column, padx=6, pady=6, sticky="nsew")
+        button.grid(
+            row=row,
+            column=column,
+            columnspan=span,
+            padx=6,
+            pady=6,
+            sticky="nsew",
+        )
 
-    for column in range(3):
+    for column in range(4):
         frame.grid_columnconfigure(column, weight=1)
 
     return frame
