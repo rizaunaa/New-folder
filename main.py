@@ -38,7 +38,8 @@ def main() -> None:
 
     def on_key_press(key: str) -> None:
         nonlocal last_was_equal
-        previous = "" if last_was_equal else output_value.get()
+        should_start_new = last_was_equal and key not in {"=", "<"}
+        previous = "" if should_start_new else output_value.get()
         next_value = process_input(previous, key)
         output_value.set(next_value)
         output_label.config(text=next_value)
