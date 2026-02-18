@@ -1,7 +1,9 @@
 import tkinter as tk
+from tkinter import messagebox
 
 from fitur.display import create_output_display
-from fitur.logikaoperasinalmtk import process_input
+from fitur.history import HistoryStore
+from fitur.logikaoperasinalmtk import OPERATORS, process_input
 from fitur.tombol import create_keypad
 
 
@@ -11,9 +13,14 @@ def main() -> None:
     root.geometry("400x420")
 
     output_value = tk.StringVar(value="")
+    history_store = HistoryStore()
 
     def on_history_click() -> None:
-        print("Tombol histori diklik")
+        items = history_store.all()
+        if not items:
+            messagebox.showinfo("Histori", "Belum ada histori.")
+            return
+        messagebox.showinfo("Histori", "\n".join(items))
 
     top_row = tk.Frame(root)
     top_row.pack(fill="x", padx=20, pady=(16, 0))
@@ -35,9 +42,19 @@ def main() -> None:
 
     def on_key_press(key: str) -> None:
         nonlocal last_was_equal
-        current = "" if last_was_equal else output_value.get()
-        output_value.set(process_input(current, key))
-        output_label.config(text=output_value.get())
+        previous = "" if last_was_equal else output_value.get()
+        next_value = process_input(previous, key)
+        output_value.set(next_value)
+        output_label.config(text=next_value)
+
+        if (
+            key == "="
+            and previous
+            and previous[-1] not in OPERATORS
+            and next_value != "Error"
+        ):
+            history_store.add(previous, next_value)
+
         last_was_equal = key == "="
 
     create_keypad(root, on_key_press)
