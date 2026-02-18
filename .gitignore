@@ -1,0 +1,6 @@
+# Mengabaikan semua folder cache python di mana pun lokasinya
+**/__pycache__/
+*.pyc
+
+# Mengabaikan file database (jika ada)
+*.db
