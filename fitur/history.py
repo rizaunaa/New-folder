@@ -17,10 +17,19 @@ class HistoryStore:
         self._items.clear()
 
 
+def _center_window(window: tk.Toplevel, width: int, height: int) -> None:
+    window.update_idletasks()
+    screen_width = window.winfo_screenwidth()
+    screen_height = window.winfo_screenheight()
+    x = (screen_width - width) // 2
+    y = (screen_height - height) // 2
+    window.geometry(f"{width}x{height}+{x}+{y}")
+
+
 def show_history_table(parent: tk.Widget, rows: list[tuple[str, str]]) -> None:
     window = tk.Toplevel(parent)
     window.title("Histori")
-    window.geometry("420x300")
+    _center_window(window, 420, 300)
 
     table = ttk.Treeview(
         window,

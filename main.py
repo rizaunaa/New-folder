@@ -6,10 +6,19 @@ from fitur.logikaoperasinalmtk import OPERATORS, process_input
 from fitur.tombol import create_keypad
 
 
+def center_window(window: tk.Tk | tk.Toplevel, width: int, height: int) -> None:
+    window.update_idletasks()
+    screen_width = window.winfo_screenwidth()
+    screen_height = window.winfo_screenheight()
+    x = (screen_width - width) // 2
+    y = (screen_height - height) // 2
+    window.geometry(f"{width}x{height}+{x}+{y}")
+
+
 def main() -> None:
     root = tk.Tk()
     root.title("Kalkulator")
-    root.geometry("400x420")
+    center_window(root, 400, 420)
     root.minsize(320, 420)
 
     output_value = tk.StringVar(value="")
