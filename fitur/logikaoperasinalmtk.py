@@ -40,6 +40,11 @@ def evaluate_expression(expression: str) -> str:
 
 
 def process_input(current_expression: str, key: str) -> str:
+    if key == "<":
+        if current_expression == "Error":
+            return ""
+        return current_expression[:-1] if current_expression else ""
+
     if key == "=":
         if not current_expression or current_expression[-1] in OPERATORS:
             return current_expression
