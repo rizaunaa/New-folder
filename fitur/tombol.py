@@ -20,6 +20,7 @@ def create_keypad(parent: tk.Widget, on_press: Callable[[str], None]) -> tk.Fram
         (2, 2, "9", "9", 1),
         (2, 3, "x", "*", 1),
         (3, 1, "0", "0", 1),
+        (3, 2, "C", "C", 1),
         (3, 3, "/", "/", 1),
         (4, 0, "=", "=", 4),
     ]
