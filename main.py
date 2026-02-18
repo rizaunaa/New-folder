@@ -1,26 +1,21 @@
 import tkinter as tk
-from tkinter import messagebox
 
 from fitur.display import create_output_display
-from fitur.history import HistoryStore
+from fitur.history import HistoryStore, show_history_table
 from fitur.logikaoperasinalmtk import OPERATORS, process_input
 from fitur.tombol import create_keypad
 
 
 def main() -> None:
     root = tk.Tk()
-    root.title("Window Kosong")
+    root.title("Kalkulator")
     root.geometry("400x420")
 
     output_value = tk.StringVar(value="")
     history_store = HistoryStore()
 
     def on_history_click() -> None:
-        items = history_store.all()
-        if not items:
-            messagebox.showinfo("Histori", "Belum ada histori.")
-            return
-        messagebox.showinfo("Histori", "\n".join(items))
+        show_history_table(root, history_store.all())
 
     top_row = tk.Frame(root)
     top_row.pack(fill="x", padx=20, pady=(16, 0))
