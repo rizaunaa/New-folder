@@ -12,10 +12,14 @@ def main() -> None:
 
     output_value = tk.StringVar(value="")
     output_label = create_output_display(root, output_value.get())
+    last_was_equal = False
 
     def on_key_press(key: str) -> None:
-        output_value.set(process_input(output_value.get(), key))
+        nonlocal last_was_equal
+        current = "" if last_was_equal else output_value.get()
+        output_value.set(process_input(current, key))
         output_label.config(text=output_value.get())
+        last_was_equal = key == "="
 
     create_keypad(root, on_key_press)
 
