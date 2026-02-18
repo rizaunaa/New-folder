@@ -4,3 +4,7 @@
 
 # Mengabaikan file database (jika ada)
 *.db
+
+build/
+dist/
+*.spec
