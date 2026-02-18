@@ -19,7 +19,6 @@ def create_output_display(parent: tk.Widget, value: str) -> tk.Label:
         parent,
         text=f"{value}",
         font=("Segoe UI", 12),
-        padx=12,
         pady=8,
         bd=0,
         relief="flat",
@@ -27,5 +26,15 @@ def create_output_display(parent: tk.Widget, value: str) -> tk.Label:
         highlightbackground=border_color,
         highlightcolor=border_color,
     )
-    label.pack(pady=20)
+
+    parent.update_idletasks()
+    width = max(parent.winfo_width(), 1)
+    horizontal_pad = max(int(width * 0.05), 8)
+    label.pack(fill="x", padx=horizontal_pad, pady=20)
+
+    def _on_resize(event: tk.Event) -> None:
+        new_pad = max(int(event.width * 0.05), 8)
+        label.pack_configure(padx=new_pad)
+
+    parent.bind("<Configure>", _on_resize, add="+")
     return label
