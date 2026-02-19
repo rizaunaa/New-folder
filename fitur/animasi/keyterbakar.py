@@ -9,6 +9,7 @@ class BurningKeyEffect:
         self._canvas: tk.Canvas | None = None
         self._active_overlay_fx = 0
         self._tokens: dict[int, int] = {}
+        self._base_styles: dict[int, dict[str, int | str]] = {}
         self._init_overlay()
 
     def _init_overlay(self) -> None:
@@ -37,13 +38,24 @@ class BurningKeyEffect:
         token = self._tokens.get(widget_id, 0) + 1
         self._tokens[widget_id] = token
 
-        original_bg = button.cget("bg")
-        original_fg = button.cget("fg")
-        original_relief = button.cget("relief")
-        original_bd = int(button.cget("bd"))
-        original_highlight_bg = button.cget("highlightbackground")
-        original_padx = int(button.grid_info().get("padx", 0))
-        original_pady = int(button.grid_info().get("pady", 0))
+        if widget_id not in self._base_styles:
+            self._base_styles[widget_id] = {
+                "bg": button.cget("bg"),
+                "fg": button.cget("fg"),
+                "relief": button.cget("relief"),
+                "bd": int(button.cget("bd")),
+                "highlightbackground": button.cget("highlightbackground"),
+                "padx": int(button.grid_info().get("padx", 0)),
+                "pady": int(button.grid_info().get("pady", 0)),
+            }
+        base = self._base_styles[widget_id]
+        original_bg = str(base["bg"])
+        original_fg = str(base["fg"])
+        original_relief = str(base["relief"])
+        original_bd = int(base["bd"])
+        original_highlight_bg = str(base["highlightbackground"])
+        original_padx = int(base["padx"])
+        original_pady = int(base["pady"])
 
         button.configure(
             bg="#ff7a18",

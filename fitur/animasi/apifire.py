@@ -17,6 +17,9 @@ class FireVisualEffect:
         self._active_particles = 0
         self._canvas_x = 0
         self._canvas_y = 0
+        self._flash_token = 0
+        self._display_base_fg: str | tuple[str, ...] | None = None
+        self._display_base_bg: str | None = None
 
         self._init_overlay()
 
@@ -268,17 +271,31 @@ class FireVisualEffect:
         self.root.after(20, lambda: self._drift_particle(particle, dx, dy, frame + 1))
 
     def flash_display(self) -> None:
+        self._flash_token += 1
+        token = self._flash_token
         try:
-            original = self.display.cget("fg_color")
+            if self._display_base_fg is None:
+                self._display_base_fg = self.display.cget("fg_color")
             self.display.configure(fg_color="#4a4a4a")
-            self.root.after(140, lambda: self.display.configure(fg_color=original))
+            self.root.after(140, lambda: self._restore_ctk_flash(token))
             return
         except tk.TclError:
             pass
 
-        original_bg = self.display.cget("bg")
+        if self._display_base_bg is None:
+            self._display_base_bg = self.display.cget("bg")
         self.display.configure(bg="#4a4a4a")
-        self.root.after(140, lambda: self.display.configure(bg=original_bg))
+        self.root.after(140, lambda: self._restore_tk_flash(token))
+
+    def _restore_ctk_flash(self, token: int) -> None:
+        if token != self._flash_token or self._display_base_fg is None:
+            return
+        self.display.configure(fg_color=self._display_base_fg)
+
+    def _restore_tk_flash(self, token: int) -> None:
+        if token != self._flash_token or self._display_base_bg is None:
+            return
+        self.display.configure(bg=self._display_base_bg)
 
     def _hide_layer(self) -> None:
         if self._use_overlay and self._overlay is not None:
