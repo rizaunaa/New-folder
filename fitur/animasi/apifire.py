@@ -140,7 +140,7 @@ class FireVisualEffect:
         step: int,
         on_impact: Callable[[], None] | None,
     ) -> None:
-        total_steps = 28
+        total_steps = 38
 
         if step <= total_steps:
             t = step / total_steps
@@ -173,7 +173,7 @@ class FireVisualEffect:
             self._spawn_trail(next_x, next_y)
 
             self.root.after(
-                12,
+                16,
                 lambda: self._animate_path(
                     particle,
                     glow,
@@ -196,7 +196,7 @@ class FireVisualEffect:
 
         self._active_particles = max(self._active_particles - 1, 0)
         if self._active_particles == 0:
-            self.root.after(120, self._hide_layer)
+            self.root.after(180, self._hide_layer)
 
     def _spawn_trail(self, x: float, y: float) -> None:
         trail_radius = random.uniform(3.0, 6.0)
@@ -243,7 +243,7 @@ class FireVisualEffect:
         radius = ((x2 - x1) / 2) + 2.5
         self._canvas.coords(ring, cx - radius, cy - radius, cx + radius, cy + radius)
         self._canvas.itemconfig(ring, outline=("#FFD700", "#FFB347", "#FF8C00")[min(frame // 4, 2)])
-        self.root.after(16, lambda: self._expand_ring(ring, frame + 1))
+        self.root.after(22, lambda: self._expand_ring(ring, frame + 1))
 
     def _fade_particle(self, particle: int, frame: int) -> None:
         colors = ("#ff8c00", "#ff6a00", "#f25c05", "#d9480f", "#b53b12")
@@ -253,7 +253,7 @@ class FireVisualEffect:
         if not self._canvas.coords(particle):
             return
         self._canvas.itemconfig(particle, fill=colors[frame])
-        self.root.after(14, lambda: self._fade_particle(particle, frame + 1))
+        self.root.after(20, lambda: self._fade_particle(particle, frame + 1))
 
     def _drift_particle(self, particle: int, dx: float, dy: float, frame: int) -> None:
         colors = ("#ffe3ad", "#ffbf66", "#ff9e3d", "#ff7f2a", "#e96a1e", "#cf5716")
@@ -265,20 +265,20 @@ class FireVisualEffect:
             return
         self._canvas.move(particle, dx / total, dy / total)
         self._canvas.itemconfig(particle, fill=colors[frame])
-        self.root.after(14, lambda: self._drift_particle(particle, dx, dy, frame + 1))
+        self.root.after(20, lambda: self._drift_particle(particle, dx, dy, frame + 1))
 
     def flash_display(self) -> None:
         try:
             original = self.display.cget("fg_color")
             self.display.configure(fg_color="#4a4a4a")
-            self.root.after(100, lambda: self.display.configure(fg_color=original))
+            self.root.after(140, lambda: self.display.configure(fg_color=original))
             return
         except tk.TclError:
             pass
 
         original_bg = self.display.cget("bg")
         self.display.configure(bg="#4a4a4a")
-        self.root.after(100, lambda: self.display.configure(bg=original_bg))
+        self.root.after(140, lambda: self.display.configure(bg=original_bg))
 
     def _hide_layer(self) -> None:
         if self._use_overlay and self._overlay is not None:

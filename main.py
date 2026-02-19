@@ -1,6 +1,7 @@
 import tkinter as tk
 
 from fitur.animasi.apifire import FireVisualEffect
+from fitur.animasi.keyterbakar import BurningKeyEffect
 from fitur.display import create_output_display
 from fitur.history import HistoryStore, show_history_table
 from fitur.logikaoperasinalmtk import OPERATORS, process_input
@@ -47,6 +48,7 @@ def main() -> None:
 
     vfx_canvas = tk.Canvas(root, highlightthickness=0, bd=0, bg=root.cget("bg"))
     fire_vfx = FireVisualEffect(root, vfx_canvas, output_label)
+    key_burn_vfx = BurningKeyEffect(root)
 
     last_was_equal = False
 
@@ -69,6 +71,7 @@ def main() -> None:
         last_was_equal = key == "="
 
     def on_key_press(key: str, source_button: tk.Widget) -> None:
+        key_burn_vfx.trigger(source_button)
         fire_vfx.launch_fire(source_button, on_impact=lambda: apply_key_logic(key))
 
     create_keypad(root, on_key_press)
