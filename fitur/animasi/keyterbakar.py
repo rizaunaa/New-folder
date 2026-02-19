@@ -146,9 +146,14 @@ class BurningKeyEffect:
 
         x = button.winfo_rootx() - root_x + button.winfo_width() / 2
         y = button.winfo_rooty() - root_y + button.winfo_height() / 2
+        left = button.winfo_rootx() - root_x
+        top = button.winfo_rooty() - root_y
+        right = left + button.winfo_width()
+        bottom = top + button.winfo_height()
 
         ring = self._canvas.create_oval(x - 8, y - 8, x + 8, y + 8, outline="#ffd166", width=2)
         self._expand_ring(ring, 0)
+        self._spawn_flame_border(left, top, right, bottom)
 
         for _ in range(8):
             ember_size = random.uniform(1.6, 3.0)
@@ -165,6 +170,82 @@ class BurningKeyEffect:
             self._drift_ember(ember, dx, dy, 0)
 
         self.root.after(360, self._finish_overlay_fx)
+
+    def _spawn_flame_border(self, left: float, top: float, right: float, bottom: float) -> None:
+        if self._canvas is None:
+            return
+
+        # Glow pinggir tombol.
+        border = self._canvas.create_rectangle(
+            left - 1,
+            top - 1,
+            right + 1,
+            bottom + 1,
+            outline="#ff6a00",
+            width=2,
+        )
+        self._pulse_border(border, 0)
+
+        # Titik kobaran di sekeliling tepi tombol.
+        step = 8
+        for x in range(int(left), int(right) + 1, step):
+            self._spawn_flame_blob(x, top, "up")
+            self._spawn_flame_blob(x, bottom, "down")
+        for y in range(int(top), int(bottom) + 1, step):
+            self._spawn_flame_blob(left, y, "left")
+            self._spawn_flame_blob(right, y, "right")
+
+    def _spawn_flame_blob(self, x: float, y: float, direction: str) -> None:
+        if self._canvas is None:
+            return
+        r = random.uniform(1.8, 3.2)
+        blob = self._canvas.create_oval(
+            x - r,
+            y - r,
+            x + r,
+            y + r,
+            fill=random.choice(("#ffd166", "#ffb347", "#ff8c00")),
+            outline="",
+        )
+        dx = random.uniform(-0.8, 0.8)
+        dy = random.uniform(-0.8, 0.8)
+        if direction == "up":
+            dy -= random.uniform(2.0, 4.0)
+        elif direction == "down":
+            dy += random.uniform(2.0, 4.0)
+        elif direction == "left":
+            dx -= random.uniform(2.0, 4.0)
+        else:
+            dx += random.uniform(2.0, 4.0)
+        self._animate_flame_blob(blob, dx, dy, 0)
+
+    def _animate_flame_blob(self, blob: int, dx: float, dy: float, frame: int) -> None:
+        if self._canvas is None:
+            return
+        colors = ("#ffd166", "#ffb347", "#ff8c00", "#ff6a00", "#e85d04")
+        total = len(colors)
+        if frame >= total:
+            self._canvas.delete(blob)
+            return
+        if not self._canvas.coords(blob):
+            return
+        self._canvas.move(blob, dx / total, dy / total)
+        self._canvas.itemconfig(blob, fill=colors[frame])
+        self.root.after(22, lambda: self._animate_flame_blob(blob, dx, dy, frame + 1))
+
+    def _pulse_border(self, border: int, frame: int) -> None:
+        if self._canvas is None:
+            return
+        if frame >= 8:
+            self._canvas.delete(border)
+            return
+        if not self._canvas.coords(border):
+            return
+        colors = ("#ff6a00", "#ff8c00", "#ffb347", "#ff8c00")
+        widths = (2, 3, 2, 1)
+        idx = frame % 4
+        self._canvas.itemconfig(border, outline=colors[idx], width=widths[idx])
+        self.root.after(24, lambda: self._pulse_border(border, frame + 1))
 
     def _expand_ring(self, ring: int, frame: int) -> None:
         if self._canvas is None:
