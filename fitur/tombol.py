@@ -2,7 +2,7 @@ import tkinter as tk
 from typing import Callable
 
 
-def create_keypad(parent: tk.Widget, on_press: Callable[[str], None]) -> tk.Frame:
+def create_keypad(parent: tk.Widget, on_press: Callable[[str, tk.Widget], None]) -> tk.Frame:
     frame = tk.Frame(parent)
     frame.pack(fill="both", expand=True, padx=20, pady=(0, 20))
 
@@ -31,8 +31,8 @@ def create_keypad(parent: tk.Widget, on_press: Callable[[str], None]) -> tk.Fram
             frame,
             text=label,
             height=2,
-            command=lambda key_value=value: on_press(key_value),
         )
+        button.configure(command=lambda key_value=value, btn_ref=button: on_press(key_value, btn_ref))
         button.grid(
             row=row,
             column=column,

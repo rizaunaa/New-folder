@@ -1,5 +1,6 @@
 import tkinter as tk
 
+from fitur.animasi.apifire import FireVisualEffect
 from fitur.display import create_output_display
 from fitur.history import HistoryStore, show_history_table
 from fitur.logikaoperasinalmtk import OPERATORS, process_input
@@ -43,9 +44,13 @@ def main() -> None:
     history_button.pack(side="right", padx=(10, 0), pady=20)
 
     output_label = create_output_display(display_host, output_value.get())
+
+    vfx_canvas = tk.Canvas(root, highlightthickness=0, bd=0, bg=root.cget("bg"))
+    fire_vfx = FireVisualEffect(root, vfx_canvas, output_label)
+
     last_was_equal = False
 
-    def on_key_press(key: str) -> None:
+    def apply_key_logic(key: str) -> None:
         nonlocal last_was_equal
         should_start_new = last_was_equal and key not in {"=", "<"}
         previous = "" if should_start_new else output_value.get()
@@ -62,6 +67,9 @@ def main() -> None:
             history_store.add(previous, next_value)
 
         last_was_equal = key == "="
+
+    def on_key_press(key: str, source_button: tk.Widget) -> None:
+        fire_vfx.launch_fire(source_button, on_impact=lambda: apply_key_logic(key))
 
     create_keypad(root, on_key_press)
 
