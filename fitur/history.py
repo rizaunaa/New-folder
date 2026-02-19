@@ -28,6 +28,12 @@ def _center_window(window: tk.Toplevel, width: int, height: int) -> None:
 
 def show_history_table(parent: tk.Widget, rows: list[tuple[str, str]]) -> None:
     window = tk.Toplevel(parent)
+    try:
+        parent_icon = parent.iconbitmap()
+        if parent_icon:
+            window.iconbitmap(default=parent_icon)
+    except tk.TclError:
+        pass
     window.title("Histori")
     _center_window(window, 420, 300)
 

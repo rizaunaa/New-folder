@@ -1,4 +1,5 @@
 import tkinter as tk
+from pathlib import Path
 
 from fitur.animasi.apifire import FireVisualEffect
 from fitur.animasi.displayapi import DisplayFlameEffect
@@ -7,6 +8,22 @@ from fitur.display import create_output_display
 from fitur.history import HistoryStore, show_history_table
 from fitur.logikaoperasinalmtk import OPERATORS, process_input
 from fitur.tombol import create_keypad
+
+
+def apply_window_icon(window: tk.Tk) -> None:
+    icon_path = Path(__file__).resolve().with_name("icon.ico")
+    try:
+        import ctypes
+
+        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("riza.kalkulator.app")
+    except Exception:
+        pass
+
+    if icon_path.exists():
+        try:
+            window.iconbitmap(default=str(icon_path))
+        except tk.TclError:
+            pass
 
 
 def center_window(window: tk.Tk | tk.Toplevel, width: int, height: int) -> None:
@@ -20,6 +37,7 @@ def center_window(window: tk.Tk | tk.Toplevel, width: int, height: int) -> None:
 
 def main() -> None:
     root = tk.Tk()
+    apply_window_icon(root)
     root.title("Kalkulator")
     center_window(root, 400, 420)
     root.minsize(320, 420)
