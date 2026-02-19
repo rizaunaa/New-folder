@@ -136,7 +136,7 @@ def main() -> None:
 
     def apply_key_logic(key: str) -> None:
         nonlocal last_was_equal
-        should_start_new = last_was_equal and key not in {"=", "<"}
+        should_start_new = last_was_equal and key.isdigit()
         previous = "" if should_start_new else output_value.get()
         next_value = process_input(previous, key)
         output_value.set(next_value)
