@@ -6,7 +6,7 @@ from fitur.animasi.apifire import FireVisualEffect
 from fitur.animasi.displayapi import DisplayFlameEffect
 from fitur.animasi.keyterbakar import BurningKeyEffect
 from fitur.display import create_output_display
-from fitur.history import HistoryStore, show_history_table
+from fitur.history import HistoryStore, create_history_sidebar, update_history_sidebar
 from fitur.logikaoperasinalmtk import OPERATORS, process_input
 from fitur.tombol import create_keypad
 
@@ -96,21 +96,52 @@ def center_window(window: tk.Tk | tk.Toplevel, width: int, height: int) -> None:
 
 
 def main() -> None:
+    base_width = 400
+    expanded_width = 680
+    base_height = 420
+
     set_windows_app_id()
     root = tk.Tk()
     apply_window_icon(root)
     root.after(0, lambda: apply_window_icon(root))
     root.title("Kalkulator")
-    center_window(root, 400, 420)
+    center_window(root, base_width, base_height)
     root.minsize(320, 420)
+    root.grid_columnconfigure(0, weight=1)
+    root.grid_rowconfigure(0, weight=1)
 
     output_value = tk.StringVar(value="")
     history_store = HistoryStore()
+    history_visible = False
+
+    main_area = tk.Frame(root)
+    main_area.grid(row=0, column=0, sticky="nsew")
+
+    history_sidebar, history_table = create_history_sidebar(root)
+    history_sidebar.grid(row=0, column=1, sticky="ns")
+    history_sidebar.grid_remove()
+
+    def refresh_history() -> None:
+        update_history_sidebar(history_table, history_store.all())
+
+    def resize_for_history(opened: bool) -> None:
+        target_width = expanded_width if opened else base_width
+        root.geometry(f"{target_width}x{base_height}")
 
     def on_history_click() -> None:
-        show_history_table(root, history_store.all())
+        nonlocal history_visible
+        if history_visible:
+            history_sidebar.grid_remove()
+            history_visible = False
+            resize_for_history(False)
+            return
 
-    top_row = tk.Frame(root)
+        refresh_history()
+        history_sidebar.grid()
+        history_visible = True
+        resize_for_history(True)
+
+    top_row = tk.Frame(main_area)
     top_row.pack(fill="x", padx=20, pady=(16, 0))
 
     display_host = tk.Frame(top_row)
@@ -150,6 +181,8 @@ def main() -> None:
             and next_value != "Error"
         ):
             history_store.add(previous, next_value)
+            if history_visible:
+                refresh_history()
 
         last_was_equal = key == "="
 
@@ -157,7 +190,7 @@ def main() -> None:
         key_burn_vfx.trigger(source_button)
         fire_vfx.launch_fire(source_button, on_impact=lambda: apply_key_logic(key))
 
-    create_keypad(root, on_key_press)
+    create_keypad(main_area, on_key_press)
 
     root.mainloop()
 

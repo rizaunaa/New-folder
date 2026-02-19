@@ -17,41 +17,38 @@ class HistoryStore:
         self._items.clear()
 
 
-def _center_window(window: tk.Toplevel, width: int, height: int) -> None:
-    window.update_idletasks()
-    screen_width = window.winfo_screenwidth()
-    screen_height = window.winfo_screenheight()
-    x = (screen_width - width) // 2
-    y = (screen_height - height) // 2
-    window.geometry(f"{width}x{height}+{x}+{y}")
+def create_history_sidebar(parent: tk.Widget) -> tuple[tk.Frame, ttk.Treeview]:
+    sidebar = tk.Frame(parent, width=260, bd=1, relief="solid")
+    sidebar.grid_propagate(False)
 
+    header = tk.Frame(sidebar)
+    header.pack(fill="x", padx=10, pady=(10, 6))
+    title = tk.Label(header, text="Histori", font=("Segoe UI", 10, "bold"))
+    title.pack(side="left")
 
-def show_history_table(parent: tk.Widget, rows: list[tuple[str, str]]) -> None:
-    window = tk.Toplevel(parent)
-    try:
-        parent_icon = parent.iconbitmap()
-        if parent_icon:
-            window.iconbitmap(default=parent_icon)
-    except tk.TclError:
-        pass
-    window.title("Histori")
-    _center_window(window, 420, 300)
+    table_wrap = tk.Frame(sidebar)
+    table_wrap.pack(fill="both", expand=True, padx=10, pady=(0, 10))
 
     table = ttk.Treeview(
-        window,
+        table_wrap,
         columns=("expression", "result"),
         show="headings",
     )
     table.heading("expression", text="Ekspresi")
     table.heading("result", text="Hasil")
-    table.column("expression", anchor="w", width=280)
-    table.column("result", anchor="center", width=120)
+    table.column("expression", anchor="w", width=160)
+    table.column("result", anchor="center", width=72)
 
-    for expression, result in rows:
-        table.insert("", "end", values=(expression, result))
-
-    scroll = ttk.Scrollbar(window, orient="vertical", command=table.yview)
+    scroll = ttk.Scrollbar(table_wrap, orient="vertical", command=table.yview)
     table.configure(yscrollcommand=scroll.set)
 
-    table.pack(side="left", fill="both", expand=True, padx=(12, 0), pady=12)
-    scroll.pack(side="right", fill="y", padx=(0, 12), pady=12)
+    table.pack(side="left", fill="both", expand=True)
+    scroll.pack(side="right", fill="y")
+
+    return sidebar, table
+
+
+def update_history_sidebar(table: ttk.Treeview, rows: list[tuple[str, str]]) -> None:
+    table.delete(*table.get_children())
+    for expression, result in reversed(rows):
+        table.insert("", "end", values=(expression, result))
