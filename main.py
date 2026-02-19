@@ -1,5 +1,6 @@
 import tkinter as tk
 from pathlib import Path
+import sys
 
 from fitur.animasi.apifire import FireVisualEffect
 from fitur.animasi.displayapi import DisplayFlameEffect
@@ -10,8 +11,7 @@ from fitur.logikaoperasinalmtk import OPERATORS, process_input
 from fitur.tombol import create_keypad
 
 
-def apply_window_icon(window: tk.Tk) -> None:
-    icon_path = Path(__file__).resolve().with_name("icon.ico")
+def set_windows_app_id() -> None:
     try:
         import ctypes
 
@@ -19,11 +19,71 @@ def apply_window_icon(window: tk.Tk) -> None:
     except Exception:
         pass
 
-    if icon_path.exists():
+
+def apply_window_icon(window: tk.Tk) -> None:
+    icon_path = Path(__file__).resolve().with_name("icon.ico")
+
+    icon_candidates = [
+        str(icon_path),
+        sys.executable,
+    ]
+    for candidate in icon_candidates:
         try:
-            window.iconbitmap(default=str(icon_path))
+            if candidate == str(icon_path) and not icon_path.exists():
+                continue
+            window.iconbitmap(default=candidate)
+            break
         except tk.TclError:
-            pass
+            continue
+
+    # Force icon for Windows title bar/task switcher using WinAPI.
+    try:
+        import ctypes
+
+        IMAGE_ICON = 1
+        LR_LOADFROMFILE = 0x0010
+        LR_DEFAULTSIZE = 0x0040
+        WM_SETICON = 0x0080
+        ICON_SMALL = 0
+        ICON_BIG = 1
+        GCL_HICON = -14
+        GCL_HICONSM = -34
+
+        user32 = ctypes.windll.user32
+        hwnd = window.winfo_id()
+
+        hicon = None
+        if icon_path.exists():
+            hicon = user32.LoadImageW(
+                0,
+                str(icon_path),
+                IMAGE_ICON,
+                0,
+                0,
+                LR_LOADFROMFILE | LR_DEFAULTSIZE,
+            )
+
+        if not hicon:
+            small = ctypes.c_void_p()
+            large = ctypes.c_void_p()
+            # Extract icon embedded in executable (works for Nuitka onefile exe).
+            extracted = ctypes.windll.shell32.ExtractIconExW(
+                sys.executable,
+                0,
+                ctypes.byref(large),
+                ctypes.byref(small),
+                1,
+            )
+            if extracted > 0:
+                hicon = large.value or small.value
+
+        if hicon:
+            user32.SendMessageW(hwnd, WM_SETICON, ICON_SMALL, hicon)
+            user32.SendMessageW(hwnd, WM_SETICON, ICON_BIG, hicon)
+            user32.SetClassLongPtrW(hwnd, GCL_HICON, hicon)
+            user32.SetClassLongPtrW(hwnd, GCL_HICONSM, hicon)
+    except Exception:
+        pass
 
 
 def center_window(window: tk.Tk | tk.Toplevel, width: int, height: int) -> None:
@@ -36,8 +96,10 @@ def center_window(window: tk.Tk | tk.Toplevel, width: int, height: int) -> None:
 
 
 def main() -> None:
+    set_windows_app_id()
     root = tk.Tk()
     apply_window_icon(root)
+    root.after(0, lambda: apply_window_icon(root))
     root.title("Kalkulator")
     center_window(root, 400, 420)
     root.minsize(320, 420)
