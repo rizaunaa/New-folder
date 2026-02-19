@@ -1,6 +1,7 @@
 import tkinter as tk
 
 from fitur.animasi.apifire import FireVisualEffect
+from fitur.animasi.displayapi import DisplayFlameEffect
 from fitur.animasi.keyterbakar import BurningKeyEffect
 from fitur.display import create_output_display
 from fitur.history import HistoryStore, show_history_table
@@ -49,6 +50,7 @@ def main() -> None:
     vfx_canvas = tk.Canvas(root, highlightthickness=0, bd=0, bg=root.cget("bg"))
     fire_vfx = FireVisualEffect(root, vfx_canvas, output_label)
     key_burn_vfx = BurningKeyEffect(root)
+    display_fire_vfx = DisplayFlameEffect(root, output_label)
 
     last_was_equal = False
 
@@ -59,6 +61,7 @@ def main() -> None:
         next_value = process_input(previous, key)
         output_value.set(next_value)
         output_label.config(text=next_value)
+        display_fire_vfx.trigger()
 
         if (
             key == "="
